@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+    <metadata>
+        <id>LLamaSharp.Backend.Sycl.Linux</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Sycl.Linux</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Sycl.Linux contains the Linux binaries for LLamaSharp with SYCL support.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp SYCL Intel</tags>
+
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Cpu" version="$version$" />
+        </dependencies>
+    </metadata>
+
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Sycl.Linux.props" />
+
+        <file src="runtimes/deps/sycl/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libggml.so" />
+        <file src="runtimes/deps/sycl/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libggml-base.so" />
+        <file src="runtimes/deps/sycl/libggml-sycl.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libggml-sycl.so" />
+        <file src="runtimes/deps/sycl/libllama.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libllama.so" />
+        <file src="runtimes/deps/sycl/libmtmd.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libmtmd.so" />
+
+        <file src="icon512.png" target="icon512.png" />
+    </files>
+</package>

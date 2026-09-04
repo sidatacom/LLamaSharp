@@ -110,6 +110,26 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/vulkan/ggml-vulkan.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/sycl/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/sycl/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/sycl/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/sycl/libggml.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/sycl/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/sycl/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/sycl/libggml-sycl.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/sycl/libggml-sycl.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/sycl/libmtmd.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/sycl/libmtmd.so</Link>
+      </None>
 
 
       <!-- Windows ARM64 -->

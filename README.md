@@ -85,7 +85,7 @@ The following examples show how to build APPs with LLamaSharp.
 
 ### Installation
 
-To gain high performance, LLamaSharp interacts with native libraries compiled from c++, these are called `backends`. We provide backend packages for Windows, Linux and Mac with CPU, CUDA, Metal and Vulkan. You **don't** need to compile any c++, just install the backend packages.
+To gain high performance, LLamaSharp interacts with native libraries compiled from c++, these are called `backends`. We provide backend packages for Windows, Linux and Mac with CPU, CUDA, Metal and Vulkan, plus SYCL for Intel GPUs on Linux. You **don't** need to compile any c++, just install the backend packages.
 
 If no published backend matches your device, please open an issue to let us know. If compiling c++ code is not difficult for you, you could also follow [this guide](./docs/ContributingGuide.md) to compile a backend and run LLamaSharp with it.
 
@@ -101,9 +101,32 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA 11 for Windows & Linux.
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
    - [`LLamaSharp.Backend.Vulkan`](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan): Vulkan for Windows & Linux.
+    - `LLamaSharp.Backend.Sycl`: Intel GPU support through SYCL for Linux.
 
 3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
 4. (optional) To enable RAG support, install the [LLamaSharp.kernel-memory](https://www.nuget.org/packages/LLamaSharp.kernel-memory) package (this package only supports `net6.0` or higher yet), which is based on [Microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration.
+
+### Intel GPU with SYCL
+
+The `LLamaSharp.Backend.Sycl` package provides Linux x64 native libraries built with Intel oneAPI DPC++ for Intel GPUs, including the Arc Pro family. The Intel GPU driver and a compatible Intel SYCL runtime must be installed on the host. Make sure the runtime libraries are discoverable through the system library path before starting the application.
+
+Install the backend and select it before using any other LLamaSharp API:
+
+```shell
+dotnet add package LLamaSharp.Backend.Sycl
+```
+
+```cs
+using LLama.Native;
+
+NativeLibraryConfig.Instance
+    .WithCuda(false)
+    .WithVulkan(false)
+    .WithSycl()
+    .WithAutoFallback(false);
+```
+
+SYCL support is currently packaged for `linux-x64`. If the SYCL native library or its Intel runtime dependencies cannot be loaded, LLamaSharp reports the native loading failure instead of silently selecting a CPU backend when automatic fallback is disabled.
 
 ### Model preparation
 

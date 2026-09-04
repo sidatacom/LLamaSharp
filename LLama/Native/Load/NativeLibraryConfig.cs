@@ -17,6 +17,7 @@ namespace LLama.Native
 
         private bool _useCuda = true;
         private bool _useVulkan = true;
+        private bool _useSycl;
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
@@ -68,6 +69,20 @@ namespace LLama.Native
             ThrowIfLoaded();
 
             _useVulkan = enable;
+            return this;
+        }
+
+        /// <summary>
+        /// Configure whether to use the SYCL backend if possible.
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if <see cref="LibraryHasLoaded"/> is true.</exception>
+        public NativeLibraryConfig WithSycl(bool enable = true)
+        {
+            ThrowIfLoaded();
+
+            _useSycl = enable;
             return this;
         }
 
@@ -178,7 +193,8 @@ namespace LLama.Native
                 _avxLevel,
                 _allowFallback,
                 _skipCheck,
-                _searchDirectories.Concat([ "./" ]).ToArray()
+                _searchDirectories.Concat([ "./" ]).ToArray(),
+                _useSycl
             );
         }
 
@@ -246,8 +262,9 @@ namespace LLama.Native
         /// <param name="SkipCheck"></param>
         /// <param name="SearchDirectories"></param>
         /// <param name="UseVulkan"></param>
-        public record Description(string? Path, NativeLibraryName Library, bool UseCuda, bool UseVulkan, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, 
-            string[] SearchDirectories)
+        /// <param name="UseSycl"></param>
+        public record Description(string? Path, NativeLibraryName Library, bool UseCuda, bool UseVulkan, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck,
+            string[] SearchDirectories, bool UseSycl = false)
         {
             /// <inheritdoc/>
             public override string ToString()
@@ -268,6 +285,7 @@ namespace LLama.Native
                        $"- Path: '{Path}'\n" +
                        $"- PreferCuda: {UseCuda}\n" +
                        $"- PreferVulkan: {UseVulkan}\n" +
+                       $"- PreferSycl: {UseSycl}\n" +
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
@@ -458,6 +476,21 @@ namespace LLama.Native
             foreach(var config in _configs)
             {
                 config.WithVulkan(enable);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Configure whether to use the SYCL backend if possible.
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if a native library has already loaded.</exception>
+        public NativeLibraryConfigContainer WithSycl(bool enable = true)
+        {
+            foreach (var config in _configs)
+            {
+                config.WithSycl(enable);
             }
             return this;
         }

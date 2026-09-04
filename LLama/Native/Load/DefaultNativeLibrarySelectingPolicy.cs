@@ -30,7 +30,12 @@ namespace LLama.Native
                     yield return new NativeLibraryWithVulkan(systemInfo.VulkanVersion, description.Library, description.AvxLevel, description.SkipCheck);
                 }
 
-                if((!description.UseCuda || !description.UseVulkan) || description.AllowFallback)
+                if (description.UseSycl)
+                {
+                    yield return new NativeLibraryWithSycl(description.Library, description.AvxLevel, description.SkipCheck);
+                }
+
+                if((!description.UseCuda || !description.UseVulkan || !description.UseSycl) || description.AllowFallback)
                 {
                     if (description.AllowFallback)
                     {

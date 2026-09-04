@@ -41,10 +41,37 @@ option(GGML_AVX                         "ggml: enable AVX") // Enable it if the 
 option(GGML_AVX2                        "ggml: enable AVX2") // Enable it if the highest supported avx level is AVX2
 option(GGML_AVX512                      "ggml: enable AVX512") // Enable it if the highest supported avx level is AVX512
 option(GGML_CUDA                        "ggml: use CUDA") // Enable it if you have CUDA device
+option(GGML_SYCL                        "ggml: use SYCL") // Enable it if you have an Intel GPU and oneAPI installed
 option(GGML_BLAS                        "ggml: use BLAS") // Enable it if you want to use BLAS library to accelerate the computation on CPU
 option(GGML_VULKAN                      "ggml: use Vulkan") // Enable it if you have a device with Vulkan support
 option(GGML_METAL                       "ggml: use Metal") // Enable it if you are using a MAC with Metal device.
 ```
+
+For a Linux SYCL build, install the Intel oneAPI DPC++ compiler and runtime, source the oneAPI environment, and configure CMake with the Intel compilers. LLamaSharp expects shared libraries and the SYCL backend artifacts from the `ggml`, `ggml-base`, `ggml-sycl`, `llama`, and `mtmd` targets.
+
+The repository includes a reproducible Docker build script for development. It uses the same Intel oneAPI image and CMake options as the `compile-sycl` workflow, initializes no toolchain on the host, and stages the five libraries directly into `LLama/runtimes/deps/sycl`:
+
+```bash
+git submodule update --init --recursive
+./scripts/build-sycl-runtime.sh
+```
+
+Docker must be installed and running. The default image is `intel/oneapi-basekit:2025.3.0-0-devel-ubuntu22.04`; override it with `SYCL_DOCKER_IMAGE` when testing another image. The script verifies that `llama.cpp` is initialized, builds shared Linux x64 libraries with SYCL and F16 enabled, and preserves the caller's file ownership. The optional `SYCL_OUTPUT_DIRECTORY` and `LLAMA_CPP_SOURCE` variables can redirect the staging directory or source tree.
+
+```bash
+source /opt/intel/oneapi/setvars.sh
+mkdir build && cd build
+cmake .. \
+	-DBUILD_SHARED_LIBS=ON \
+	-DGGML_SYCL=ON \
+	-DGGML_SYCL_F16=ON \
+	-DCMAKE_C_COMPILER=icx \
+	-DCMAKE_CXX_COMPILER=icpx \
+	-DCMAKE_CXX_FLAGS=-fsycl
+cmake --build . --config Release --target ggml ggml-base ggml-sycl llama mtmd
+```
+
+The CI workflow uses the `intel/oneapi-basekit:2025.3.0-0-devel-ubuntu22.04` image and aggregates the resulting Linux x64 libraries under `runtimes/deps/sycl`. The release process packages them as `LLamaSharp.Backend.Sycl.Linux`, while `LLamaSharp.Backend.Sycl` provides the platform package dependency.
 
 Most importantly, `-DBUILD_SHARED_LIBS=ON` must be added to the cmake instruction and other options depends on you. For example, when building with CUDA, use the following instruction:
 

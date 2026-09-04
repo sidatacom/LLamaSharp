@@ -108,6 +108,10 @@ namespace LLama.Native
                                 // ggml-vulkan
                                 if (library.Metadata.UseVulkan)
                                     dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-vulkan{ext}"));
+
+                                // ggml-sycl is shipped beside the SYCL llama library.
+                                if (library.Metadata.UseSycl)
+                                    dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-sycl{ext}"));
                             }
 
                         }
