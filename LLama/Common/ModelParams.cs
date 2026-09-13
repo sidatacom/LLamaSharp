@@ -32,6 +32,9 @@ namespace LLama.Common
         public int GpuLayerCount { get; set; } = 20;
 
         /// <inheritdoc />
+        public IReadOnlyList<string> Devices { get; set; } = new List<string>();
+
+        /// <inheritdoc />
         public uint SeqMax { get; set; } = 1;
 
         /// <inheritdoc />

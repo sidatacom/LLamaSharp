@@ -22,11 +22,7 @@
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Sycl.Linux.props" />
 
-        <file src="runtimes/deps/sycl/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libggml.so" />
-        <file src="runtimes/deps/sycl/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libggml-base.so" />
-        <file src="runtimes/deps/sycl/libggml-sycl.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libggml-sycl.so" />
-        <file src="runtimes/deps/sycl/libllama.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libllama.so" />
-        <file src="runtimes/deps/sycl/libmtmd.so" target="LLamaSharpRuntimes/linux-x64/native/sycl/libmtmd.so" />
+        <file src="runtimes/deps/sycl/*.so*" target="LLamaSharpRuntimes/linux-x64/native/sycl" />
 
         <file src="icon512.png" target="icon512.png" />
     </files>

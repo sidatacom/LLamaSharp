@@ -50,6 +50,11 @@ namespace LLama.Abstractions
         int GpuLayerCount { get; }
 
         /// <summary>
+        /// Names of backend devices allowed to receive model tensors. An empty collection uses all devices.
+        /// </summary>
+        IReadOnlyList<string> Devices { get; }
+
+        /// <summary>
         /// Use mmap for faster loads (use_mmap)
         /// </summary>
         bool UseMemorymap { get; }

@@ -10,9 +10,8 @@ namespace LLama.Native
     {
         /// <summary>
         /// NULL-terminated list of devices to use for offloading (if NULL, all available devices are used)
-        /// todo: add support for llama_model_params.devices
         /// </summary>
-        private IntPtr devices;
+        public IntPtr* devices;
 
         /// <summary>
         /// NULL-terminated list of buffer types to use for tensors that match a pattern

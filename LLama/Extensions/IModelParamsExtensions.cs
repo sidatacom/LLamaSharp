@@ -36,6 +36,32 @@ public static class IModelParamsExtensions
         if (@params.SplitMode.HasValue)
             result.split_mode = @params.SplitMode.Value;
 
+        if (@params.Devices.Count > 0)
+        {
+            var availableDevices = new Dictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase);
+            for (nuint index = 0; index < NativeApi.ggml_backend_dev_count(); index++)
+            {
+                var device = NativeApi.ggml_backend_dev_get(index);
+                var name = NativeApi.ggml_backend_dev_name(device).PtrToString();
+                if (!string.IsNullOrWhiteSpace(name))
+                    availableDevices[name] = device;
+            }
+
+            var selectedDevices = new IntPtr[@params.Devices.Count + 1];
+            for (var index = 0; index < @params.Devices.Count; index++)
+            {
+                if (!availableDevices.TryGetValue(@params.Devices[index], out var device))
+                    throw new ArgumentException($"Backend device '{@params.Devices[index]}' was not found.", nameof(@params.Devices));
+
+                selectedDevices[index] = device;
+            }
+
+            unsafe
+            {
+                result.devices = (IntPtr*)disposer.Add(selectedDevices.AsMemory().Pin()).Pointer;
+            }
+        }
+
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;
         result.use_direct_io = @params.UseDirectIO;

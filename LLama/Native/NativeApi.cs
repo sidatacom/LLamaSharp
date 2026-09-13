@@ -449,6 +449,18 @@ namespace LLama.Native
         public static extern IntPtr ggml_backend_dev_get(nuint i);
 
         /// <summary>
+        /// Gets the stable backend device name used by llama.cpp device selectors.
+        /// </summary>
+        [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ggml_backend_dev_name(IntPtr device);
+
+        /// <summary>
+        /// Gets the human-readable backend device description.
+        /// </summary>
+        [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ggml_backend_dev_description(IntPtr device);
+
+        /// <summary>
         /// Get the buffer type for a backend device
         /// </summary>
         /// <param name="dev">Backend device pointer</param>

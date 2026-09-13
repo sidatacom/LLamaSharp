@@ -16,6 +16,8 @@ required_libraries=(
     libggml-base.so
     libggml-sycl.so
     libmtmd.so
+    libur_adapter_level_zero.so
+    libur_adapter_level_zero_v2.so.0
 )
 
 if [[ ! -f "$llama_cpp_directory/CMakeLists.txt" ]]; then
@@ -46,6 +48,12 @@ docker run --rm \
         apt-get install -y cmake ninja-build >/dev/null
         source /opt/intel/oneapi/setvars.sh --force >/dev/null
         set -u
+        driver_library_patterns=(
+            'libze_loader.so*'
+            'libze_intel_gpu.so*'
+            'libigc.so*'
+            'libigdgmm.so*'
+        )
         rm -rf "${BUILD_DIRECTORY}"
         mkdir -p "${BUILD_DIRECTORY}"
         cd "${BUILD_DIRECTORY}"
@@ -70,6 +78,51 @@ docker run --rm \
         for library in libllama.so libggml.so libggml-base.so libggml-sycl.so libmtmd.so; do
             test -s "${BUILD_DIRECTORY}/bin/${library}"
             install -m 0755 "${BUILD_DIRECTORY}/bin/${library}" "/output/${library}"
+        done
+        adapter_library="$(find /opt/intel/oneapi -type f -name 'libur_adapter_level_zero.so*' -print -quit)"
+        test -n "${adapter_library}"
+        install -m 0755 "${adapter_library}" /output/libur_adapter_level_zero.so
+        adapter_library_v2="$(find /opt/intel/oneapi -type f -name 'libur_adapter_level_zero_v2.so*' -print -quit)"
+        test -n "${adapter_library_v2}"
+        install -m 0755 "${adapter_library_v2}" /output/libur_adapter_level_zero_v2.so.0
+
+        for driver_library_pattern in "${driver_library_patterns[@]}"; do
+            while IFS= read -r driver_path; do
+                [[ -n "${driver_path}" ]] || continue
+                cp -a "${driver_path}" /output/
+            done < <(find /usr/lib /usr/local/lib -maxdepth 3 -name "${driver_library_pattern}" -print 2>/dev/null)
+        done
+
+        is_core_library() {
+            case "$(basename "$1")" in
+                ld-linux*|ld.so|libc.so.*|libm.so.*|libdl.so.*|libpthread.so.*|librt.so.*|libgcc_s.so.*|libstdc++.so.*|libresolv.so.*|libutil.so.*|linux-vdso.so.*)
+                    return 0
+                    ;;
+            esac
+            return 1
+        }
+
+        dependency_queue=("${BUILD_DIRECTORY}/bin/libggml-sycl.so" /output/libur_adapter_level_zero.so)
+        declare -A copied_dependencies=()
+        while ((${#dependency_queue[@]} > 0)); do
+            library="${dependency_queue[0]}"
+            dependency_queue=("${dependency_queue[@]:1}")
+            while read -r dependency; do
+                [[ -n "${dependency}" ]] || continue
+                dependency_name="$(basename "${dependency}")"
+                is_core_library "${dependency_name}" && continue
+                if [[ ! -e "/output/${dependency_name}" ]]; then
+                    install -m 0755 "${dependency}" "/output/${dependency_name}"
+                fi
+                if [[ -z "${copied_dependencies[${dependency_name}]+x}" ]]; then
+                    copied_dependencies["${dependency_name}"]=1
+                    dependency_queue+=("/output/${dependency_name}")
+                fi
+            done < <(
+                ldd "${library}" \
+                | sed -n "s/.*=> \\(\\/[^ ]*\\.so[^ ]*\\).*/\\1/p" \
+                | sort -u
+            )
         done
         chown "${OUTPUT_USER_ID}:${OUTPUT_GROUP_ID}" /output/libllama.so /output/libggml.so /output/libggml-base.so /output/libggml-sycl.so /output/libmtmd.so
     '
